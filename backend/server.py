@@ -35,6 +35,7 @@ class MusicItemCreate(BaseModel):
     genre: str
     purchase_date: str
     format: str  # "CD" or "LP"
+    cover_image_url: Optional[str] = None
 
 class MusicItemResponse(BaseModel):
     id: str
@@ -44,6 +45,7 @@ class MusicItemResponse(BaseModel):
     genre: str
     purchase_date: str
     format: str
+    cover_image_url: Optional[str] = None
     created_at: datetime
 
 # API Routes
