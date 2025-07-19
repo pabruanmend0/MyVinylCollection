@@ -64,6 +64,7 @@ async def create_item(item: MusicItemCreate):
         "genre": item.genre,
         "purchase_date": item.purchase_date,
         "format": item.format,
+        "cover_image_url": item.cover_image_url,
         "created_at": datetime.utcnow()
     }
     
