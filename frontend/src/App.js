@@ -72,7 +72,8 @@ const App = () => {
           year_of_release: '',
           genre: '',
           purchase_date: '',
-          format: 'CD'
+          format: 'CD',
+          cover_image_url: ''
         });
         setShowForm(false);
       }
