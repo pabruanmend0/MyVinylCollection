@@ -102,7 +102,8 @@ async def update_item(item_id: str, item: MusicItemCreate):
         "year_of_release": item.year_of_release,
         "genre": item.genre,
         "purchase_date": item.purchase_date,
-        "format": item.format
+        "format": item.format,
+        "cover_image_url": item.cover_image_url
     }
     
     result = items_collection.update_one(
