@@ -1,75 +1,125 @@
-from fastapi import FastAPI, APIRouter
-from dotenv import load_dotenv
-from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
-import os
-import logging
-from pathlib import Path
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from typing import List
-import uuid
+from typing import List, Optional
 from datetime import datetime
+import os
+import uuid
+from pymongo import MongoClient
+from pymongo.collection import Collection
 
+# Load environment variables
+mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
 
-ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')
+# MongoDB setup
+client = MongoClient(mongo_url)
+db = client.music_collection
+items_collection: Collection = db.items
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+app = FastAPI(title="Music Collection API")
 
-# Create the main app without a prefix
-app = FastAPI()
-
-# Create a router with the /api prefix
-api_router = APIRouter(prefix="/api")
-
-
-# Define Models
-class StatusCheck(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
-
-class StatusCheckCreate(BaseModel):
-    client_name: str
-
-# Add your routes to the router instead of directly to app
-@api_router.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.dict()
-    status_obj = StatusCheck(**status_dict)
-    _ = await db.status_checks.insert_one(status_obj.dict())
-    return status_obj
-
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    status_checks = await db.status_checks.find().to_list(1000)
-    return [StatusCheck(**status_check) for status_check in status_checks]
-
-# Include the router in the main app
-app.include_router(api_router)
-
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=True,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Pydantic models
+class MusicItemCreate(BaseModel):
+    artist: str
+    album_title: str
+    year_of_release: int
+    genre: str
+    purchase_date: str
+    format: str  # "CD" or "LP"
 
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
+class MusicItemResponse(BaseModel):
+    id: str
+    artist: str
+    album_title: str
+    year_of_release: int
+    genre: str
+    purchase_date: str
+    format: str
+    created_at: datetime
+
+# API Routes
+@app.get("/api/health")
+async def health_check():
+    return {"status": "healthy", "message": "Music Collection API is running"}
+
+@app.post("/api/items", response_model=MusicItemResponse)
+async def create_item(item: MusicItemCreate):
+    # Create new item with UUID
+    new_item = {
+        "id": str(uuid.uuid4()),
+        "artist": item.artist,
+        "album_title": item.album_title,
+        "year_of_release": item.year_of_release,
+        "genre": item.genre,
+        "purchase_date": item.purchase_date,
+        "format": item.format,
+        "created_at": datetime.utcnow()
+    }
+    
+    result = items_collection.insert_one(new_item)
+    if result.inserted_id:
+        return MusicItemResponse(**new_item)
+    else:
+        raise HTTPException(status_code=500, detail="Failed to create item")
+
+@app.get("/api/items", response_model=List[MusicItemResponse])
+async def get_items(format: Optional[str] = None):
+    query = {}
+    if format:
+        query["format"] = format
+    
+    items = list(items_collection.find(query, {"_id": 0}))
+    
+    # Sort by artist then genre
+    items.sort(key=lambda x: (x["artist"].lower(), x["genre"].lower()))
+    
+    return [MusicItemResponse(**item) for item in items]
+
+@app.get("/api/items/{item_id}", response_model=MusicItemResponse)
+async def get_item(item_id: str):
+    item = items_collection.find_one({"id": item_id}, {"_id": 0})
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return MusicItemResponse(**item)
+
+@app.put("/api/items/{item_id}", response_model=MusicItemResponse)
+async def update_item(item_id: str, item: MusicItemCreate):
+    update_data = {
+        "artist": item.artist,
+        "album_title": item.album_title,
+        "year_of_release": item.year_of_release,
+        "genre": item.genre,
+        "purchase_date": item.purchase_date,
+        "format": item.format
+    }
+    
+    result = items_collection.update_one(
+        {"id": item_id},
+        {"$set": update_data}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
+    
+    updated_item = items_collection.find_one({"id": item_id}, {"_id": 0})
+    return MusicItemResponse(**updated_item)
+
+@app.delete("/api/items/{item_id}")
+async def delete_item(item_id: str):
+    result = items_collection.delete_one({"id": item_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return {"message": "Item deleted successfully"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8001)
