@@ -88,23 +88,49 @@ const App = () => {
   const lpItems = items.filter(item => item.format === 'LP');
 
   const ItemCard = ({ item }) => (
-    <div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
-      <div className="flex items-start justify-between mb-4">
-        <h3 className="text-lg font-bold text-gray-900 leading-tight">{item.album_title}</h3>
-        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+      {/* Album Cover */}
+      <div className="relative h-48 bg-gradient-to-br from-gray-200 to-gray-300">
+        {item.cover_image_url ? (
+          <img 
+            src={item.cover_image_url} 
+            alt={`${item.album_title} cover`}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'flex';
+            }}
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400"></div>
+        )}
+        {/* Fallback for broken images */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center text-gray-600 hidden">
+          <div className="text-center">
+            <div className="text-4xl mb-2">🎵</div>
+            <div className="text-xs">No Cover</div>
+          </div>
+        </div>
+        {/* Format Badge */}
+        <span className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-medium shadow-lg ${
           item.format === 'CD' 
-            ? 'bg-blue-100 text-blue-800' 
-            : 'bg-purple-100 text-purple-800'
+            ? 'bg-blue-500 text-white' 
+            : 'bg-purple-500 text-white'
         }`}>
           {item.format}
         </span>
       </div>
       
-      <div className="space-y-2">
-        <p className="text-gray-700 font-medium">{item.artist}</p>
-        <p className="text-gray-600 text-sm">Genre: {item.genre}</p>
-        <p className="text-gray-600 text-sm">Released: {item.year_of_release}</p>
-        <p className="text-gray-600 text-sm">Purchased: {item.purchase_date}</p>
+      {/* Album Info */}
+      <div className="p-4">
+        <h3 className="text-lg font-bold text-gray-900 leading-tight mb-2 line-clamp-2">{item.album_title}</h3>
+        <p className="text-gray-700 font-medium mb-3">{item.artist}</p>
+        
+        <div className="space-y-1 text-sm text-gray-600">
+          <p><span className="font-medium">Genre:</span> {item.genre}</p>
+          <p><span className="font-medium">Released:</span> {item.year_of_release}</p>
+          <p><span className="font-medium">Purchased:</span> {item.purchase_date}</p>
+        </div>
       </div>
     </div>
   );
