@@ -267,13 +267,16 @@ def main():
     test_methods = [
         tester.test_health_check,
         tester.test_create_cd_item,
+        tester.test_create_cd_with_cover,
         tester.test_create_lp_item,
+        tester.test_create_lp_with_cover,
         tester.test_create_another_cd,
         tester.test_get_all_items,
         tester.test_filter_by_cd,
         tester.test_filter_by_lp,
         tester.test_get_single_item,
         tester.test_update_item,
+        tester.test_update_item_with_cover,
         tester.test_delete_item,
         tester.test_get_nonexistent_item,
         tester.test_invalid_data
