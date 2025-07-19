@@ -15,6 +15,20 @@ const App = () => {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Sample album cover images
+  const sampleCovers = [
+    'https://images.unsplash.com/photo-1587731556938-38755b4803a6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzZ8MHwxfHNlYXJjaHwxfHxhbGJ1bSUyMGNvdmVyc3xlbnwwfHx8fDE3NTI5NDMyODl8MA&ixlib=rb-4.1.0&q=85',
+    'https://images.unsplash.com/photo-1644855640845-ab57a047320e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzZ8MHwxfHNlYXJjaHwyfHxhbGJ1bSUyMGNvdmVyc3xlbnwwfHx8fDE3NTI5NDMyODl8MA&ixlib=rb-4.1.0&q=85',
+    'https://images.unsplash.com/photo-1629923759854-156b88c433aa?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzZ8MHwxfHNlYXJjaHwzfHxhbGJ1bSUyMGNvdmVyc3xlbnwwfHx8fDE3NTI5NDMyODl8MA&ixlib=rb-4.1.0&q=85',
+    'https://images.unsplash.com/photo-1588532218970-c2cab983746a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwxfHx2aW55bCUyMHJlY29yZHN8ZW58MHx8fHwxNzUyODkzNzAzfDA&ixlib=rb-4.1.0&q=85',
+    'https://images.unsplash.com/photo-1582730147924-d92f4da00252?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwyfHx2aW55bCUyMHJlY29yZHN8ZW58MHx8fHwxNzUyODkzNzAzfDA&ixlib=rb-4.1.0&q=85',
+    'https://images.unsplash.com/photo-1596633313465-1256feb1c6d9?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwzfHx2aW55bCUyMHJlY29yZHN8ZW58MHx8fHwxNzUyODkzNzAzfDA&ixlib=rb-4.1.0&q=85'
+  ];
+
+  const getRandomCover = () => {
+    return sampleCovers[Math.floor(Math.random() * sampleCovers.length)];
+  };
+
   const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
   useEffect(() => {
