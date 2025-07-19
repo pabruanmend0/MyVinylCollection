@@ -277,6 +277,27 @@ const App = () => {
                 </select>
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Album Cover URL (Optional)</label>
+                <div className="space-y-2">
+                  <input
+                    type="url"
+                    name="cover_image_url"
+                    value={formData.cover_image_url}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="https://example.com/album-cover.jpg"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, cover_image_url: getRandomCover() }))}
+                    className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded transition-colors"
+                  >
+                    Use Random Sample Cover
+                  </button>
+                </div>
+              </div>
+
               <div className="md:col-span-2 flex gap-4">
                 <button
                   type="submit"
