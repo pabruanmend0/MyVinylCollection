@@ -203,6 +203,31 @@ class MusicCollectionAPITester:
         }
         return self.run_test("Update Item", "PUT", f"api/items/{item_id}", 200, data=update_data)
 
+    def test_update_item_with_cover(self):
+        """Update an existing item with cover image"""
+        if not self.created_items:
+            print("   ⚠️  No items created yet, skipping update with cover test")
+            return False, {}
+        
+        item_id = self.created_items[0]
+        update_data = {
+            "artist": "The Beatles",
+            "album_title": "Abbey Road (Remastered)",
+            "year_of_release": 1969,
+            "genre": "Rock",
+            "purchase_date": "2024-01-15",
+            "format": "CD",
+            "cover_image_url": "https://images.unsplash.com/photo-1629923759854-156b88c433aa?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzZ8MHwxfHNlYXJjaHwzfHxhbGJ1bSUyMGNvdmVyc3xlbnwwfHx8fDE3NTI5NDMyODl8MA&ixlib=rb-4.1.0&q=85"
+        }
+        success, response = self.run_test("Update Item with Cover", "PUT", f"api/items/{item_id}", 200, data=update_data)
+        if success and response:
+            # Verify cover_image_url is updated in response
+            if 'cover_image_url' in response and response['cover_image_url'] == update_data['cover_image_url']:
+                print("   ✅ Cover image URL correctly updated and returned")
+            else:
+                print("   ⚠️  Cover image URL not properly updated in response")
+        return success, response
+
     def test_delete_item(self):
         """Delete an item"""
         if not self.created_items:
