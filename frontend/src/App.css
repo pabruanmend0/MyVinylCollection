@@ -4,7 +4,7 @@
 
 /* Custom styles for the music collection app */
 .collection-card {
-  @apply bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-300;
+  @apply bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden;
 }
 
 .collection-card:hover {
@@ -25,6 +25,23 @@
 
 .btn-secondary {
   @apply px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors;
+}
+
+/* Text truncation for album titles */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Album cover hover effects */
+.album-cover {
+  transition: transform 0.3s ease;
+}
+
+.collection-card:hover .album-cover {
+  transform: scale(1.05);
 }
 
 /* Custom scrollbar */
@@ -73,4 +90,20 @@ select:focus {
 
 .animate-fadeInUp {
   animation: fadeInUp 0.5s ease-out;
+}
+
+/* Loading shimmer effect */
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
 }
