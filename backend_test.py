@@ -107,6 +107,26 @@ class MusicCollectionAPITester:
         }
         return self.run_test("Create LP Item", "POST", "api/items", 201, data=lp_data)
 
+    def test_create_lp_with_cover(self):
+        """Create an LP item with album cover"""
+        lp_data = {
+            "artist": "Led Zeppelin",
+            "album_title": "Led Zeppelin IV",
+            "year_of_release": 1971,
+            "genre": "Rock",
+            "purchase_date": "2024-02-01",
+            "format": "LP",
+            "cover_image_url": "https://images.unsplash.com/photo-1644855640845-ab57a047320e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzZ8MHwxfHNlYXJjaHwyfHxhbGJ1bSUyMGNvdmVyc3xlbnwwfHx8fDE3NTI5NDMyODl8MA&ixlib=rb-4.1.0&q=85"
+        }
+        success, response = self.run_test("Create LP Item with Cover", "POST", "api/items", 201, data=lp_data)
+        if success and response:
+            # Verify cover_image_url is returned in response
+            if 'cover_image_url' in response and response['cover_image_url'] == lp_data['cover_image_url']:
+                print("   ✅ Cover image URL correctly saved and returned")
+            else:
+                print("   ⚠️  Cover image URL not properly handled in response")
+        return success, response
+
     def test_create_another_cd(self):
         """Create another CD for sorting test"""
         cd_data = {
